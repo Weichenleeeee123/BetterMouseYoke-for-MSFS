@@ -1,6 +1,6 @@
 class Config:
     # 热键设置
-    HOTKEY = 'f1'
+    HOTKEY = 'Ctrl+F'
     
     # 十字架样式
     CENTER_CROSS_SIZE = 20
@@ -16,3 +16,6 @@ class Config:
     # 屏幕尺寸 (由overlay模块初始化)
     SCREEN_WIDTH = 1920
     SCREEN_HEIGHT = 1080
+
+    # 滑行轴控制参数
+    RUDDER_AXIS_WIDTH = 400  # 滑行轴在屏幕上的显示宽度 (像素)

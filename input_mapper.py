@@ -6,6 +6,8 @@ class InputMapper:
     def __init__(self, screen_width=None, screen_height=None):
         self.device = None
         self.vjoy_id = None
+        self.last_joy_x = 16384
+        self.last_joy_y = 16384
 
         # 使用传入的屏幕尺寸，如果没有传入则使用Config中的默认值
         self.screen_width = screen_width if screen_width is not None else Config.SCREEN_WIDTH
@@ -77,6 +79,9 @@ class InputMapper:
         # 计算摇杆值 (0-32767)，分别使用X和Y的最大偏移量进行归一化
         joy_x = int((offset_x / self.max_offset_x) * 16383 + 16384)
         joy_y = int((offset_y / self.max_offset_y) * 16383 + 16384)
+
+        self.last_joy_x = joy_x
+        self.last_joy_y = joy_y
         
         try:
             self.device.set_axis(pyvjoy.HID_USAGE_X, joy_x)
@@ -84,11 +89,36 @@ class InputMapper:
         except Exception as e:
             print(f"设置摇杆轴失败: {e}")
         
+    def map_rudder_position(self, x, initial_x, initial_y):
+        """将鼠标水平位置映射为方向舵输入"""
+        if not self.device:
+            return
+
+        half_width = Config.RUDDER_AXIS_WIDTH // 2
+        start_x = initial_x - half_width
+        end_x = initial_x + half_width
+
+        # 将当前鼠标X限制在滑行轴的范围内
+        clamped_x = max(start_x, min(end_x, x))
+
+        # 计算滑行值
+        offset = clamped_x - start_x
+        joy_z = int((offset / Config.RUDDER_AXIS_WIDTH) * 32767)
+
+        try:
+            # 在滑行模式下，只控制Z轴，XY轴保持之前的位置
+            self.device.set_axis(pyvjoy.HID_USAGE_X, self.last_joy_x)
+            self.device.set_axis(pyvjoy.HID_USAGE_Y, self.last_joy_y)
+            self.device.set_axis(pyvjoy.HID_USAGE_Z, joy_z)
+        except Exception as e:
+            print(f"设置方向舵轴失败: {e}")
+
     def reset(self):
         """重置摇杆位置"""
         if self.device:
             self.device.set_axis(pyvjoy.HID_USAGE_X, 16384)
             self.device.set_axis(pyvjoy.HID_USAGE_Y, 16384)
+            self.device.set_axis(pyvjoy.HID_USAGE_Z, 16384)
         
     def __del__(self):
         """释放设备"""

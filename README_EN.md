@@ -17,9 +17,16 @@ A tool that converts your mouse into a virtual joystick, designed specifically f
 - **Locked Mode** - Joystick stays at a specified position, mouse moves freely.
 - **Center Dead Zone** - When locked near the screen center, the joystick automatically recenters.
 
+### Ground Rudder Mode (New)
+- **Hold Left Mouse Button** - In "Active Mode", hold the left mouse button to enter ground rudder mode.
+- **Rudder Control** - Horizontal mouse movement will exclusively control the rudder (Z-axis) for easy ground maneuvering.
+- **Attitude Hold** - Pitch and roll attitude will be locked at the current position when entering this mode.
+- **Smooth Constraint** - The mouse will be smoothly "snapped" to a horizontal line, providing a fluid single-axis control experience.
+
 ### 🎯 Visual Feedback
 - **Center Crosshair** - A white crosshair marks the screen center (joystick neutral position).
 - **Locked Crosshair** - A yellow crosshair shows the current locked joystick position.
+- **Ground Rudder Axis** - A cyan horizontal line is displayed in ground rudder mode, indicating the rudder control range.
 - **Transparent Overlay** - Does not interfere with other applications.
 
 ## System Requirements
@@ -60,16 +67,18 @@ python main.py
 ### Basic Operations
 
 #### 🔑 Hotkey Controls
-- **F1** - Toggle between active and locked modes
+- **Ctrl+F** - Toggle between active and locked modes
 - **ESC** - Fully exit joystick mode
 
 #### 📱 Operation Flow
 1. **Start the Program** - Run `python main.py`
-2. **Press F1 to Activate** - Mouse jumps to the screen center, entering active mode
-3. **Move the Mouse** - Control the joystick by moving the mouse on the screen
-4. **Press F1 to Lock** - Lock the current joystick position, mouse regains free movement
-5. **Press F1 to Reactivate** - Mouse jumps back to the locked position, continue control
-6. **Press ESC to Exit** - Fully exit joystick mode and reset all statuses
+2. **Press Ctrl+F to Activate** - Mouse jumps to the screen center, entering active mode.
+3. **Move the Mouse** - Control the joystick by moving the mouse on the screen.
+4. **Hold Left Mouse Button** - Enter ground rudder mode. The mouse is smoothly constrained to a horizontal line, and horizontal movement controls the rudder.
+5. **Release Left Mouse Button** - Exit ground rudder mode and resume joystick control.
+6. **Press Ctrl+F to Lock** - Lock the current joystick position, mouse regains free movement.
+7. **Press Ctrl+F to Reactivate** - Mouse jumps back to the locked position, continue control.
+8. **Press ESC to Exit** - Fully exit joystick mode and reset all statuses.
 
 ### ⚙️ Custom Configuration
 Edit the `config.py` file to adjust these parameters:
@@ -82,6 +91,9 @@ CENTER_DEAD_ZONE_FACTOR = 0.01  # Center dead zone size
 # Visual styles
 CENTER_CROSS_SIZE = 20          # Center crosshair size
 LOCKED_CROSS_SIZE = 15          # Locked crosshair size
+
+# Rudder control parameters
+RUDDER_AXIS_WIDTH = 400         # Display width of the rudder axis on screen (pixels)
 ```
 
 ## Technical Principles
@@ -93,12 +105,16 @@ LOCKED_CROSS_SIZE = 15          # Locked crosshair size
 
 ### State Management
 ```
-Inactive ──F1──→ Active Mode ──F1──→ Locked Mode
+Inactive ──Ctrl+F──→ Active Mode ──Ctrl+F──→ Locked Mode
    ↑                              │
-   └──────────F1──────────────────┘
+   └──────────Ctrl+F──────────────────┘
    
 Any State ──ESC──→ Fully Exit
 ```
+
+### Mouse Smoothing (New)
+- **Smoothing Algorithm** - Uses a linear interpolation algorithm to smoothly guide the mouse towards the target horizontal line in the vertical direction.
+- **Adjustable Strength** - The `smoothing_factor` parameter allows adjusting the strength of the snapping effect for more natural mouse movement.
 
 ## Troubleshooting
 
