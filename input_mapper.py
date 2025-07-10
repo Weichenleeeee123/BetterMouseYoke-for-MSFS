@@ -98,17 +98,19 @@ class InputMapper:
         start_x = initial_x - half_width
         end_x = initial_x + half_width
 
-        # 将当前鼠标X限制在滑行轴的范围内
-        clamped_x = max(start_x, min(end_x, x))
+        # 计算当前鼠标在滑行轴范围内的比例 (0-1)
+        normalized = max(0.0, min(1.0, (x - start_x) / Config.RUDDER_AXIS_WIDTH))
+        
+        # 使用曲线映射提高操控精度
+        if normalized < 0.5:
+            normalized = 2 * normalized**2  # 前半段二次曲线
+        else:
+            normalized = 1 - 2 * (1 - normalized)**2  # 后半段二次曲线
 
-        # 计算滑行值
-        offset = clamped_x - start_x
-        joy_z = int((offset / Config.RUDDER_AXIS_WIDTH) * 32767)
+        joy_z = int(normalized * 32767)
 
         try:
-            # 在滑行模式下，只控制Z轴，XY轴保持之前的位置
-            self.device.set_axis(pyvjoy.HID_USAGE_X, self.last_joy_x)
-            self.device.set_axis(pyvjoy.HID_USAGE_Y, self.last_joy_y)
+            # 只更新Z轴，减少不必要的XY轴更新
             self.device.set_axis(pyvjoy.HID_USAGE_Z, joy_z)
         except Exception as e:
             print(f"设置方向舵轴失败: {e}")

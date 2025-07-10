@@ -119,12 +119,9 @@ class MouseYoke:
             current_pos = pyautogui.position()
             target_y = rudder_activation_pos[1]
 
-            # 平滑地将鼠标Y坐标移向目标Y坐标
-            new_y = int(current_pos[1] * (1 - self.smoothing_factor) + target_y * self.smoothing_factor)
-            
-            # 只有在鼠标位置发生变化时才移动，避免不必要的pyautogui调用
-            if new_y != current_pos[1]:
-                pyautogui.moveTo(current_pos[0], new_y)
+            # 直接将鼠标Y坐标固定在初始位置
+            if current_pos[1] != target_y:
+                pyautogui.moveTo(current_pos[0], target_y)
 
             self.input_mapper.map_rudder_position(current_pos[0], rudder_activation_pos[0], rudder_activation_pos[1])
         elif self.active and not self.locked:
