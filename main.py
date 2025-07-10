@@ -61,7 +61,9 @@ class MouseYoke:
                 # 恢复鼠标到激活方向舵前的Y坐标，X坐标保持当前，避免跳跃
                 current_x, _ = pyautogui.position()
                 pyautogui.moveTo(current_x, y)
-                print("退出方向舵模式")
+                # 重置方向舵到中心位置
+                self.input_mapper.reset_z()
+                print("退出方向舵模式并重置方向舵")
 
     def toggle_active(self):
         """切换激活状态：未激活 -> 激活 ↔ 锁定"""

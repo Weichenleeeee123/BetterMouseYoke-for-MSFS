@@ -113,12 +113,17 @@ class InputMapper:
         except Exception as e:
             print(f"设置方向舵轴失败: {e}")
 
+    def reset_z(self):
+        """重置方向舵到中心位置"""
+        if self.device:
+            self.device.set_axis(pyvjoy.HID_USAGE_Z, 16384)
+            
     def reset(self):
-        """重置摇杆位置"""
+        """重置所有摇杆轴到中心位置"""
         if self.device:
             self.device.set_axis(pyvjoy.HID_USAGE_X, 16384)
             self.device.set_axis(pyvjoy.HID_USAGE_Y, 16384)
-            self.device.set_axis(pyvjoy.HID_USAGE_Z, 16384)
+            self.reset_z()
         
     def __del__(self):
         """释放设备"""
